@@ -2,7 +2,7 @@
 
 SELECT
     origin,
-    sum(nb_fans) AS nb_fans
+    sum(fans) AS nb_fans
 FROM
     metal_bands
 GROUP BY
