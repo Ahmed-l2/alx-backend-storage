@@ -4,3 +4,4 @@ CREATE TRIGGER update_valid_email
 BEFORE UPDATE ON users
 FOR EACH ROW
 SET NEW.valid_email = 0;
+WHERE NEW.email <> OLD.email
