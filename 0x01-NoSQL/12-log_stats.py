@@ -1,5 +1,8 @@
+#!/usr/bin/env python3
 import pymongo
 """Provides some stats about Nginx logs stored in MongoDB"""
+
+
 
 myclient = pymongo.MongoClient("mongodb://localhost:27017/")
 logs = myclient["logs"]
