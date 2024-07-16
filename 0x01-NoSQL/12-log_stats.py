@@ -18,11 +18,11 @@ def log_stats():
 
     print("{} logs".format(len(list(nginx.find()))))
     print("Methods:")
-    print("\t method GET: {}".format(GET))
-    print("\t method POST: {}".format(POST))
-    print("\t method PUT: {}".format(PUT))
-    print("\t method PATCH: {}".format(PATCH))
-    print("\t method DELETE: {}".format(DELETE))
+    print("\tmethod GET: {}".format(GET))
+    print("\tmethod POST: {}".format(POST))
+    print("\tmethod PUT: {}".format(PUT))
+    print("\tmethod PATCH: {}".format(PATCH))
+    print("\tmethod DELETE: {}".format(DELETE))
     print("{} status check".format(status_check))
 
 
