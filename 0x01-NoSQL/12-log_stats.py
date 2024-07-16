@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
-import pymongo
 """Module for log_stats"""
+import pymongo
 
 
 def log_stats():
