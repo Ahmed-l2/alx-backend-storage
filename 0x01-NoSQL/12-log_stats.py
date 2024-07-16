@@ -16,14 +16,14 @@ def log_stats():
     DELETE = len(list(nginx.find({"method": "DELETE"})))
     status_check = len(list(nginx.find({"method": "GET", "path": "/status"})))
 
-    print(f"{len(list(nginx.find()))} logs")
+    print("{} logs".format(len(list(nginx.find()))))
     print("Methods:")
-    print(f"\t method GET: {GET}")
-    print(f"\t method POST: {POST}")
-    print(f"\t method PUT: {PUT}")
-    print(f"\t method PATCH: {PATCH}")
-    print(f"\t method DELETE: {DELETE}")
-    print(f"{status_check} status check")
+    print("\t method GET: {}".format(GET))
+    print("\t method POST: {}".format(POST))
+    print("\t method PUT: {}".format(PUT))
+    print("\t method PATCH: {}".format(PATCH))
+    print("\t method DELETE: {}".format(DELETE))
+    print("{} status check".format(status_check))
 
 
 if __name__ == "__main__":
