@@ -57,3 +57,21 @@ class Cache:
 
     def get_int(self, key: str) -> Union[int, None]:
         return self.get(key, int)
+
+
+def replay(method: Callable):
+    key = method.__qualname__
+    cache = method.__self__
+
+    input_key = "{}:inputs".format(key)
+    output_key = "{}:outputs".format(key)
+
+    inputs = cache._redis.lrange(input_key, 0, -1)
+    outputs = cache._redis.lrange(output_key, 0, -1)
+    inputs = [i.decode('utf-8') for i in inputs]
+    outputs = [o.decode('utf-8') for o in outputs]
+
+    print("{} was called {} times".format(key, len(inputs)))
+
+    for i, o in zip(inputs, outputs):
+        print("{}(*{}) -> {}".format(key, i, o))
