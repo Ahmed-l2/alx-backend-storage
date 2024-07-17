@@ -21,7 +21,8 @@ def url_access_count(method):
 
         html = method(url)
         r.setex(cached_key, 10, html)
-        return method(url)
+        return html
+
     return wrapper
 
 
