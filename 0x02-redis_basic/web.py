@@ -8,13 +8,12 @@ r = redis.Redis()
 
 
 def url_access_count(method):
+    """Decorator to monitor access to url"""
     @wraps(method)
     def wrapper(url):
-        # Track access count (increment Redis key)
         count_key = f"count:{url}"
         r.incr(count_key)
 
-        # Retrieve or fetch HTML content
         cached_key = f"cached:{url}"
         cached_html = r.get(cached_key)
         if cached_html:
