@@ -10,7 +10,8 @@ r = redis.Redis()
 def url_access_count(method):
     """Decorator to monitor access to URL."""
     @wraps(method)
-    def wrapper(url):
+    def wrapper(*args, **kwargs):
+        url = args[0]
         count_key = f"count:{url}"
         r.incr(count_key)
 
@@ -21,7 +22,7 @@ def url_access_count(method):
 
         html = method(url)
         r.setex(cached_key, 10, html)
-        return html
+        return method(*args, **kwargs)
 
     return wrapper
 
