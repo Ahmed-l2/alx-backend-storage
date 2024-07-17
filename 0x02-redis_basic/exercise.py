@@ -61,21 +61,19 @@ class Cache:
 
 def replay(method: Callable):
     """Display the history of calls of a particular function."""
-    r = redis.Redis()
     key = method.__qualname__
-
-    count = r.get(key)
+    redis = method.__self__._redis
+    count = redis.get(key).decode("utf-8")
 
     input_key = "{}:inputs".format(key)
     output_key = "{}:outputs".format(key)
 
-    inputs = r.lrange(input_key, 0, -1)
-    outputs = r.lrange(output_key, 0, -1)
+    inputs = redis.lrange(input_key, 0, -1)
+    outputs = redis.lrange(output_key, 0, -1)
 
     results = list(zip(inputs, outputs))
 
-    print("{} was called {} times:".format(key, count.decode('utf-8')))
+    print("{} was called {} times:".format(key, count))
 
     for i, o in results:
-        print("{}(*{}) -> {}".format(key, i.decode('utf-8'),
-                                     o.decode('utf-8')))
+        print("{}(*{}) -> {}".format(key, i.decode('utf-8'), o.decode('utf-8')))
