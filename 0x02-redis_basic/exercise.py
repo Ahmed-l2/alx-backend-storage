@@ -43,41 +43,38 @@ class Cache:
         self._redis.set(key, data)
         return key
 
-    def get(self, key: str, fn: Optional[Callable[[bytes], Union[int, str, float, bytes]]] = None) -> \
-            Union[int, str, float, bytes, None]:
+    def get(self, key: str, fn: Optional[Callable] = None) -> \
+            Union[int, str, float, bytes]:
         value = self._redis.get(key)
-        if value is None:
-            return None
         if fn:
             return fn(value)
         return value
 
-    def get_str(self, key: str) -> Optional[str]:
-        value = self.get(key)
-        return value.decode("utf-8") if isinstance(value, bytes) else None
+    def get_str(self, key: str) -> str:
+        value = self._redis.get(key)
+        return value.decode("utf-8")
 
-    def get_int(self, key: str) -> Optional[int]:
-        value = self.get(key)
-        return int(value) if isinstance(value, bytes) else None
+    def get_int(self, key: str) -> int:
+        value = self._redis.get(key)
+        return int(value)
 
 
-def replay(method: Callable) -> None:
+def replay(method: Callable):
     """Display the history of calls of a particular function."""
     key = method.__qualname__
-    redis_client = method.__self__._redis
-
-    count = redis_client.get(key)
-    count = count.decode("utf-8") if count else "0"
+    redis = method.__self__._redis
+    count = redis.get(key).decode("utf-8")
 
     input_key = "{}:inputs".format(key)
     output_key = "{}:outputs".format(key)
 
-    inputs = redis_client.lrange(input_key, 0, -1)
-    outputs = redis_client.lrange(output_key, 0, -1)
+    inputs = redis.lrange(input_key, 0, -1)
+    outputs = redis.lrange(output_key, 0, -1)
 
     results = list(zip(inputs, outputs))
 
     print("{} was called {} times:".format(key, count))
 
     for i, o in results:
-        print("{}(*{}) -> {}".format(key, i.decode('utf-8'), o.decode('utf-8')))
+        print("{}(*{}) -> {}".format(key, i.decode('utf-8'),
+                                     o.decode('utf-8')))
