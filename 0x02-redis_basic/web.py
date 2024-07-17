@@ -8,21 +8,24 @@ r = redis.Redis()
 
 
 def url_access_count(method):
-    """Decorator to count how many times a URL has been accessed"""
     @wraps(method)
     def wrapper(url):
-        cached_key = "cached:{}".format(url)
+        # Track access count (increment Redis key)
+        count_key = f"count:{url}"
+        r.incr(count_key)
+
+        # Retrieve or fetch HTML content
+        cached_key = f"cached:{url}"
         cached_html = r.get(cached_key)
         if cached_html:
             return cached_html.decode("utf-8")
 
-        count_key = "count:{}".format(url)
-        r.incr(count_key)
-
         html = method(url)
         r.setex(cached_key, 10, html)
         return html
+
     return wrapper
+
 
 @url_access_count
 def get_page(url: str) -> str:
@@ -32,4 +35,6 @@ def get_page(url: str) -> str:
 
 
 if __name__ == "__main__":
-    get_page('http://slowwly.robertomurray.co.uk')
+    test_url = "http://slowwly.robertomurray.co.uk"
+    html_content = get_page(test_url)
+    print(html_content)
