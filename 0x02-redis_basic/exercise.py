@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Module for Cache Class"""
 import redis
-from typing import Union, Callable
+from typing import Union, Callable, Optional
 import uuid
 from functools import wraps
 
@@ -43,33 +43,43 @@ class Cache:
         self._redis.set(key, data)
         return key
 
-    def get(self, key: str, fn: Callable = None) -> \
+    def get(self, key: str, fn: Optional[Callable] = None) -> \
             Union[int, str, float, bytes, None]:
         value = self._redis.get(key)
-        if fn is None:
-            return value
-        if value is None:
-            return None
-        return fn(value)
+        if fn and value:
+            return fn(value)
+        return value
 
-    def get_str(self, key: str) -> Union[str, None]:
-        return self.get(key, str)
+    def get_str(self, key: str) -> Optional[str]:
+        value = self._redis.get(key)
+        if value:
+            return value.decode("utf-8")
+        return None
 
-    def get_int(self, key: str) -> Union[int, None]:
-        return self.get(key, int)
+    def get_int(self, key: str) -> Optional[int]:
+        value = self._redis.get(key)
+        if value:
+            return int(value)
+        return None
 
 
 def replay(method: Callable):
     """Display the history of calls of a particular function."""
     key = method.__qualname__
-    redis = method.__self__._redis
-    count = redis.get(key).decode("utf-8")
+    cache_instance = method.__self__
+    redis_client = cache_instance._redis
+
+    count = redis_client.get(key)
+    if count is not None:
+        count = count.decode("utf-8")
+    else:
+        count = "0"
 
     input_key = "{}:inputs".format(key)
     output_key = "{}:outputs".format(key)
 
-    inputs = redis.lrange(input_key, 0, -1)
-    outputs = redis.lrange(output_key, 0, -1)
+    inputs = redis_client.lrange(input_key, 0, -1)
+    outputs = redis_client.lrange(output_key, 0, -1)
 
     results = list(zip(inputs, outputs))
 
