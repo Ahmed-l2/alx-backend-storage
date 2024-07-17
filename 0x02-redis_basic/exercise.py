@@ -43,37 +43,31 @@ class Cache:
         self._redis.set(key, data)
         return key
 
-    def get(self, key: str, fn: Optional[Callable] = None) -> \
+    def get(self, key: str, fn: Optional[Callable[[bytes], Union[int, str, float, bytes]]] = None) -> \
             Union[int, str, float, bytes, None]:
         value = self._redis.get(key)
-        if fn and value:
+        if value is None:
+            return None
+        if fn:
             return fn(value)
         return value
 
     def get_str(self, key: str) -> Optional[str]:
-        value = self._redis.get(key)
-        if value:
-            return value.decode("utf-8")
-        return None
+        value = self.get(key)
+        return value.decode("utf-8") if isinstance(value, bytes) else None
 
     def get_int(self, key: str) -> Optional[int]:
-        value = self._redis.get(key)
-        if value:
-            return int(value)
-        return None
+        value = self.get(key)
+        return int(value) if isinstance(value, bytes) else None
 
 
-def replay(method: Callable):
+def replay(method: Callable) -> None:
     """Display the history of calls of a particular function."""
     key = method.__qualname__
-    cache_instance = method.__self__
-    redis_client = cache_instance._redis
+    redis_client = method.__self__._redis
 
     count = redis_client.get(key)
-    if count is not None:
-        count = count.decode("utf-8")
-    else:
-        count = "0"
+    count = count.decode("utf-8") if count else "0"
 
     input_key = "{}:inputs".format(key)
     output_key = "{}:outputs".format(key)
@@ -86,5 +80,4 @@ def replay(method: Callable):
     print("{} was called {} times:".format(key, count))
 
     for i, o in results:
-        print("{}(*{}) -> {}".format(key, i.decode('utf-8'),
-                                     o.decode('utf-8')))
+        print("{}(*{}) -> {}".format(key, i.decode('utf-8'), o.decode('utf-8')))
