@@ -1,9 +1,22 @@
 #!/usr/bin/env python3
 """Module for Cache Class"""
 import redis
-from typing import Union, Optional, Callable, Any
+from typing import Union, Callable
 import uuid
 from functools import wraps
+
+
+def call_history(method: Callable) -> Callable:
+    inputs = "{}:inputs".format(method.__qualname__)
+    outputs = "{}:outputs".format(method.__qualname__)
+
+    @wraps(method)
+    def wrapper(self, *args, **kwargs):
+        self._redis.rpush(inputs, str(args))
+        result = method(self, *args, **kwargs)
+        self._redis.rpush(outputs, str(result))
+        return result
+    return wrapper
 
 
 def count_calls(method: Callable) -> Callable:
@@ -23,6 +36,7 @@ class Cache:
         self._redis = redis.Redis()
         self._redis.flushdb()
 
+    @call_history
     @count_calls
     def store(self, data: Union[str, bytes, int, float]) -> str:
         key = str(uuid.uuid4())
