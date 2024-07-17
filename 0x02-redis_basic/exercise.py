@@ -59,12 +59,12 @@ class Cache:
         return self.get(key, int)
 
 
-def replay(method: Callable):
+def replay(method: Callable) -> None:
     """display the history of calls of a particular function."""
     key = method.__qualname__
     cache = method.__self__
 
-    count = int(cache.get(key))
+    count = cache.get(key, int)
 
     input_key = "{}:inputs".format(key)
     output_key = "{}:outputs".format(key)
@@ -74,7 +74,9 @@ def replay(method: Callable):
     inputs = [i.decode('utf-8') for i in inputs]
     outputs = [o.decode('utf-8') for o in outputs]
 
+    results = list(zip(inputs, outputs))
+
     print("{} was called {} times".format(key, count))
 
-    for i, o in zip(inputs, outputs):
+    for i, o in results:
         print("{}(*{}) -> {}".format(key, i, o))
