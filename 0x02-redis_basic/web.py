@@ -21,7 +21,7 @@ def url_access_count(method):
             return cached_html.decode("utf-8")
 
         html = method(url)
-        r.setex(cached_key, 10, html)
+        r.set(cached_key, html, 10)
         return method(*args, **kwargs)
 
     return wrapper
