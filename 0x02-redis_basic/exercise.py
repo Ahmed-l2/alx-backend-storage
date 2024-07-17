@@ -64,7 +64,7 @@ def replay(method: Callable) -> None:
     key = method.__qualname__
     cache = method.__self__
 
-    count = cache.get(key, int)
+    count = cache.get(key)
 
     input_key = "{}:inputs".format(key)
     output_key = "{}:outputs".format(key)
@@ -76,7 +76,7 @@ def replay(method: Callable) -> None:
 
     results = list(zip(inputs, outputs))
 
-    print("{} was called {} times".format(key, count))
+    print("{} was called {} times:".format(key, count.decode('utf-8')))
 
     for i, o in results:
         print("{}(*{}) -> {}".format(key, i, o))
