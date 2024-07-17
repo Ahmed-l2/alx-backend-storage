@@ -8,7 +8,7 @@ r = redis.Redis()
 
 
 def url_access_count(method):
-    """Decorator to monitor access to url"""
+    """Decorator to monitor access to URL."""
     @wraps(method)
     def wrapper(url):
         count_key = f"count:{url}"
@@ -28,12 +28,7 @@ def url_access_count(method):
 
 @url_access_count
 def get_page(url: str) -> str:
-    """Obtains the HTML content of a particular URL and returns it."""
+    """Obtains the HTML content of a URL and returns it."""
     response = requests.get(url)
+    response.raise_for_status()
     return response.text
-
-
-if __name__ == "__main__":
-    test_url = "http://slowwly.robertomurray.co.uk"
-    html_content = get_page(test_url)
-    print(html_content)
