@@ -13,6 +13,7 @@ def call_history(method: Callable) -> Callable:
 
     @wraps(method)
     def wrapper(self, *args, **kwargs):
+        """wrapper function for call_history"""
         self._redis.rpush(inputs, str(args))
         result = method(self, *args, **kwargs)
         self._redis.rpush(outputs, str(result))
@@ -21,6 +22,7 @@ def call_history(method: Callable) -> Callable:
 
 
 def count_calls(method: Callable) -> Callable:
+    """Counts the number of times a function is called"""
     key = method.__qualname__
 
     @wraps(method)
