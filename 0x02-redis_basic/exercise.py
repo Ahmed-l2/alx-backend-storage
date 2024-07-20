@@ -7,6 +7,7 @@ from functools import wraps
 
 
 def call_history(method: Callable) -> Callable:
+    """display the history of calls of a particular function."""
     inputs = "{}:inputs".format(method.__qualname__)
     outputs = "{}:outputs".format(method.__qualname__)
 
